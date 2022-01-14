@@ -1,0 +1,27 @@
+{
+    "aplication":
+    {
+        "rand_gen_seed": 10,
+        "output_mode": "details"
+    },
+    "algorithm":
+    {
+        "tournament_size": 2,
+        "population_size": 94,
+        "max_generations": 50,
+        "crossoverP": 0.7,
+        "mutationP": 0.2,
+        "n_classifiers": 47,
+        "labels_in_classifier": 3,
+        "threshold": 0.5,
+        "beta_number": 0.75
+    },
+
+    "dataset":
+    {
+        "train_dataset": "emotions-train",
+        "test_dataset": "emotions-test",
+        "label_count": 6,
+        "sparse": 0
+    }
+}
