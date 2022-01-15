@@ -1,5 +1,6 @@
 import sys, os
 import EAGLET.config as config
+from EAGLET.EAGLET import EAGLET
 from skmultilearn.dataset import load_from_arff
 from arff import BadLayout
 
@@ -51,13 +52,17 @@ def main():
         print(repr(exc) + ": probably 'sparse' attribute in config is wrong")
         return
     
+    # 3. initialize Classifier
+    clf = EAGLET()
 
-    # 3. fit
+    # 4. fit
+    clf.fit(X_train_inital, y_train_initial)
 
-    # 4. predict
+    # 5. predict
+    clf.predict(X_test_initial)
 
-    # 5. output results
-    
+    # 6. output results and score
+    print("Done!")
 
 if __name__ == "__main__":
     main()
