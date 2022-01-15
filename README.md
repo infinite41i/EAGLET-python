@@ -7,11 +7,13 @@ Combining multi-label classifiers based on projections of the output space using
 _Using a python virtual environment (venv) is suggested!_
 
 First, make sure wheel is installed in current environment:
+
 ```bash
 pip install wheel
 ```
 
 Then install requirements:
+
 ```bash
 pip install -r "requirements.txt"
 ```
