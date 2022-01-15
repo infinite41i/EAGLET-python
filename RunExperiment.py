@@ -2,15 +2,15 @@ import sys, os
 import EAGLET.config as config
 from skmultilearn.dataset import load_from_arff
 
-def load_config():
+def main():
+    # 1. load configuration file
     try:
         file_arg = sys.argv[1]
         configs = config.load_config(file_arg)
-        return configs
     except IndexError:
         print("Usage: " + os.path.basename(__file__) + " <configFile path>")
-        raise
-
+        return
+    
 def main():
     # 1. load configuration file
     try:
