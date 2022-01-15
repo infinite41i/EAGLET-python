@@ -2,6 +2,8 @@
 
 Combining multi-label classifiers based on projections of the output space using Evolutionary algorithms - based on a paper by Jose M. Moyano, Eva L. Gibaja, Krzysztof J. Cios, Sebastián Ventura
 
+- __Original Paper:__ [https://doi.org/10.1016/j.knosys.2020.105770](https://doi.org/10.1016/j.knosys.2020.105770)
+
 ## How to launch EAGLET-python?
 
 _Using a python virtual environment (venv) is suggested!_
@@ -31,8 +33,6 @@ __Windows:__
 ```ps
 python RunExperiment.py ./Configs/emotions_config.json
 ```
-
-__Original Paper:__ [https://www.sciencedirect.com/science/article/abs/pii/S0950705120301726?via%3Dihub](https://www.sciencedirect.com/science/article/abs/pii/S0950705120301726?via%3Dihub)
 
 __Implementation References:__
 
