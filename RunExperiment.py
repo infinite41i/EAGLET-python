@@ -1,6 +1,7 @@
 import sys, os
 import EAGLET.config as config
 from skmultilearn.dataset import load_from_arff
+from arff import BadLayout
 
 def main():
     # 1. load configuration file
@@ -41,18 +42,15 @@ def main():
         print(repr(exc))
         details = False
 
-    # 2. load_dataset
+    # 2. load_dataset    
+    ## load from arff
     try:
-        train_path = "./Datasets/" + configs['dataset']['train_dataset'] + ".arff"
-        test_path = "./Datasets/" + configs['dataset']['train_dataset'] + ".arff"
-        label_count = configs['dataset']['label_count']
-        sparse = configs['dataset']['sparse']
-        label_location = configs['dataset']['label_location']
-    except KeyError as exc:
-        print(repr(exc))
+        X_train_inital, y_train_initial, feature_names_initial, label_names_initial = load_from_arff(train_path, label_count=label_count, load_sparse=sparse, label_location=label_location, return_attribute_definitions=True)
+        X_test_initial, y_test_initial, _, _ = load_from_arff(test_path, label_count=label_count, load_sparse=sparse, label_location=label_location, return_attribute_definitions=True)
+    except BadLayout as exc:
+        print(repr(exc) + ": probably 'sparse' attribute in config is wrong")
         return
-    X_train, y_train, feature_names, label_names = load_from_arff(train_path, label_count=label_count, load_sparse=sparse, label_location=label_location, return_attribute_definitions=True)
-    print(X_train)
+    
 
     # 3. fit
 
