@@ -2,7 +2,7 @@
     "application":
     {
         "rand_gen_seed": 10,
-        "output_mode": "details"
+        "output_details": "True"
     },
     "algorithm":
     {
@@ -22,6 +22,7 @@
         "train_dataset": "emotions-train",
         "test_dataset": "emotions-test",
         "label_count": 6,
-        "sparse": 0
+        "sparse": 0,
+        "label_location": "end"
     }
 }
