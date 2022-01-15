@@ -11,17 +11,32 @@ def main():
         print("Usage: " + os.path.basename(__file__) + " <configFile path>")
         return
     
-def main():
-    # 1. load configuration file
+    ## store variables from configFile
     try:
-        configs = load_config()
-    except IndexError as exc:
+        # dataset properties:
+        train_path = "./Datasets/" + configs['dataset']['train_dataset'] + ".arff"
+        test_path = "./Datasets/" + configs['dataset']['train_dataset'] + ".arff"
+        label_count = configs['dataset']['label_count']
+        sparse = True if configs['dataset']['sparse']=="True" else False
+        label_location = configs['dataset']['label_location']
+
+        # algorithm properties
+        tournament_size = configs['algorithm']['tournament_size']
+        population_size = configs['algorithm']['population_size']
+        max_generations = configs['algorithm']['max_generations']
+        crossoverP = configs['algorithm']['crossoverP']
+        mutationP = configs['algorithm']['mutationP']
+        n_classifiers = configs['algorithm']['n_classifiers']
+        labels_in_classifier = configs['algorithm']['labels_in_classifier']
+        threshold = configs['algorithm']['threshold']
+        beta_number = configs['algorithm']['beta_number']
+    except KeyError as exc:
         print(repr(exc))
         return
-    
+
     ## details should be printed or not
     try:
-        details = True if configs['application']['output_mode']=="True" else False
+        details = True if configs['application']['output_details']=="True" else False
     except KeyError as exc:
         print(repr(exc))
         details = False
