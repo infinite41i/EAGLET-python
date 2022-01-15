@@ -22,7 +22,7 @@
         "train_dataset": "emotions-train",
         "test_dataset": "emotions-test",
         "label_count": 6,
-        "sparse": 0,
+        "sparse": "False",
         "label_location": "end"
     }
 }
