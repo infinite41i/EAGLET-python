@@ -58,7 +58,7 @@ class EAGLET:
         
         #increment or decrement label appearances until sum(a_l)==k*popSize
         if(sum(label_repeat_in_pop)<active_bits_count):
-            labels_sorted_by_f = utils.sort_labels(label_frequencies, asc=True) #ascending
+            labels_sorted_by_f = utils.sort_labels(label_frequencies) #ascending
             i = 0
             while sum(label_repeat_in_pop) < active_bits_count:
                 label_index = labels_sorted_by_f[i][0]
@@ -66,7 +66,7 @@ class EAGLET:
                 i = (i+1)%label_count
 
         elif(sum(label_repeat_in_pop)>active_bits_count):
-            labels_sorted_by_f = utils.sort_labels(label_frequencies, asc=False)#descending
+            labels_sorted_by_f = utils.sort_labels(label_frequencies, desc=True)#descending
             i = 0
             while sum(label_repeat_in_pop) > active_bits_count:
                 label_index = labels_sorted_by_f[i][0]
