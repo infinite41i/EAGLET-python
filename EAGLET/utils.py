@@ -1,7 +1,7 @@
-def sort_dict(d: dict, asc=True) -> dict:
-        return dict(sorted(d.items(), key=lambda item: item[1], reverse= not asc))
+def sort_dict(d: dict, desc=False) -> dict:
+        return dict(sorted(d.items(), key=lambda item: item[1], reverse= desc))
 
-def sort_labels(d: dict, asc=True) -> list:
-    sorted_freqs = sort_dict(d, asc=False)#descending
+def sort_labels(d: dict, desc=False) -> list:
+    sorted_freqs = sort_dict(d, desc)
     labels_sorted_by_f = list(sorted_freqs.items())
     return labels_sorted_by_f
