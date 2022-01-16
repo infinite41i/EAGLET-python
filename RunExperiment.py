@@ -25,6 +25,8 @@ def main():
         # algorithm properties
         tournament_size = configs['algorithm']['tournament_size']
         population_size = configs['algorithm']['population_size']
+        if(population_size == "default"):
+            population_size = round(3.33*label_count)
         max_generations = configs['algorithm']['max_generations']
         crossoverP = configs['algorithm']['crossoverP']
         mutationP = configs['algorithm']['mutationP']
@@ -42,7 +44,10 @@ def main():
     except KeyError as exc:
         print(repr(exc))
         details = False
-
+    if(details):
+        print("*******************************************")
+        print("Starting algorithm...")
+        print("*******************************************")
     # 2. load_dataset    
     ## load from arff
     try:
@@ -53,7 +58,9 @@ def main():
         return
     
     # 3. initialize Classifier
-    clf = EAGLET()
+    clf = EAGLET(tournament_size=tournament_size, population_size=population_size, max_generations=max_generations,
+        crossoverP=crossoverP, mutationP=mutationP, n_classifiers=n_classifiers, labels_in_classifier=labels_in_classifier,
+        threshold=threshold, beta_number=beta_number, details=details)
 
     # 4. fit
     clf.fit(X_train_inital, y_train_initial)

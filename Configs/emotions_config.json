@@ -7,7 +7,7 @@
     "algorithm":
     {
         "tournament_size": 2,
-        "population_size": 94,
+        "population_size": "default",
         "max_generations": 50,
         "crossoverP": 0.7,
         "mutationP": 0.2,
