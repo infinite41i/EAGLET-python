@@ -6,16 +6,16 @@ from EAGLET.Ensemble.Population import Population
 import EAGLET.utils as utils
 class EAGLET:
     __rep_min__ = 1
-    def __init__(self, labels_in_classifier = 3, tournament_size = 2, population_size = "default"
-        , max_generations = 50, crossoverP = 0.7, mutationP = 0.2, n_classifiers = 47
+    def __init__(self, population_size, n_classifiers, labels_in_classifier = 3, tournament_size = 2
+        , max_generations = 50, crossoverP = 0.7, mutationP = 0.2
         , threshold = 0.5, beta_number = 0.75, details=False) -> None:
+        self.population_size = population_size
+        self.n_classifiers = n_classifiers
         self.labels_in_classifier = labels_in_classifier
         self.tournament_size = tournament_size
-        self.population_size = population_size
         self.max_generations = max_generations
         self.crossoverP = crossoverP
         self.mutationP = mutationP
-        self.n_classifiers = n_classifiers
         self.threshold = threshold
         self.beta_number = beta_number
         self.details = details
