@@ -1,5 +1,5 @@
 import numpy as np
-from random import randrange
+from random import randrange, sample
 from EAGLET.utils import sort_labels
 
 class Population:
@@ -14,6 +14,11 @@ class Population:
         self.individuals = np.zeros((pop_size,label_count), np.byte)
         self.labels_sorted_by_f = sort_labels(label_frequencies, desc=True)#descending
         self.distribute_labels(label_count ,labels_repeat)
+
+        ## 1.3. delete repeated individuals
+        self.remove_duplicate_inds()
+
+        #print individuals
         if details:
             print()
             print("Initial Individuals:")
@@ -69,3 +74,40 @@ class Population:
         while not (self.individuals[ind1][rand1] == 1 and self.individuals[ind2][rand1] == 0):
             rand1 = randrange(label)
         return rand1
+    
+    def remove_duplicate_inds(self):
+        unique_inds = []
+        duplicate_inds = []
+        #iterates on population to find duplicates
+        for i in range(self.pop_size):
+            indstr = self.ind_to_str(i)
+            if indstr in unique_inds:
+                duplicate_inds.append(i)
+            else:
+                unique_inds.append(indstr)
+        
+        #replace duplicates with random indiviuals
+        while len(duplicate_inds) != 0:
+            duplicate_ind_index = duplicate_inds[0]
+            #first, fill duplicate with zeroes
+            self.individuals[duplicate_ind_index].fill(0)
+
+            #fill randomly with 'one's
+            new_bits = sample(range(0,self.label_count), self.labels_in_individual)
+            for label_index in new_bits:
+                self.individuals[duplicate_ind_index][label_index] = 1
+            
+            #now check if it's duplicate again
+            new_indstr = self.ind_to_str(duplicate_ind_index)
+            if new_indstr not in unique_inds:
+                duplicate_inds.pop(0)
+                unique_inds.append(new_indstr)
+            
+    def ind_to_str(self, ind_num: int) -> str:
+        s = ""
+        for i in self.individuals[ind_num]:
+            if i == 0:
+                s += "0"
+            elif i == 1:
+                s += "1"
+        return s
