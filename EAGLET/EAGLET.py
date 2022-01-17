@@ -6,8 +6,9 @@ from EAGLET.Ensemble.Population import Population
 import EAGLET.utils as utils
 class EAGLET:
     __rep_min__ = 1
-    def __init__(self, labels_in_classifier = 3, tournament_size = 2, population_size = "default", max_generations = 50, crossoverP = 0.7,
-     mutationP = 0.2, n_classifiers = 47, threshold = 0.5, beta_number = 0.75, details=False) -> None:
+    def __init__(self, labels_in_classifier = 3, tournament_size = 2, population_size = "default"
+        , max_generations = 50, crossoverP = 0.7, mutationP = 0.2, n_classifiers = 47
+        , threshold = 0.5, beta_number = 0.75, details=False) -> None:
         self.labels_in_classifier = labels_in_classifier
         self.tournament_size = tournament_size
         self.population_size = population_size
@@ -40,7 +41,9 @@ class EAGLET:
             print("Doing calculations for frequency of each label in the initial population...")
             print()
 
+        #Store some values
         self.label_count = y.shape[1] #q
+
         label_frequencies = self.get_label_frequenciers(y) #f
         f_sum = self.get_label_frequency_sum(label_frequencies) #sigma f_l
 
@@ -49,9 +52,6 @@ class EAGLET:
         remaining_bit_count = active_bits_count - self.label_count*self.__rep_min__ #r
         
         #distribute bit count among labels
-        # k_of_q = math.comb(label_count,self.labels_in_classifier)
-        # accum_population = self.population_size*self.max_generations #popSize*G
-        # total_ind_count = self.population_size if k_of_q >= accum_population else k_of_q #individuals count upper bound
         total_ind_count = self.population_size #individuals count upper bound
         for i in range(self.label_count):
             distribute = self.__rep_min__ + round(label_frequencies[i]/f_sum*remaining_bit_count)# a_min + ||f_l/sigmaF*r||
@@ -78,10 +78,12 @@ class EAGLET:
             print("Number of times that each label appears in the initial population:")
             print(label_repeat_in_pop)
 
-        ## 1.2. create initial individuals and fix if needed
         self.population = Population(self.population_size, self.labels_in_classifier, self.label_count, label_repeat_in_pop
             , label_frequencies, self.details)
+        #With the above commands, these works are done in sequence to generate the ensemble
+        ## 1.2. create initial individuals and fix if needed
         ## 1.3. delete repeated individuals
+
         # 2. loop: ('max_generations' times)
         ## 2.1. calculate individual fitnesses
         ## 2.2. run a tournament to select two individuals
