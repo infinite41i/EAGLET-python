@@ -2,6 +2,7 @@ from collections import Counter as freq
 from collections import OrderedDict
 import math
 from scipy.sparse import find
+from EAGLET.Ensemble.Population import Population
 import EAGLET.utils as utils
 class EAGLET:
     __rep_min__ = 1
@@ -39,20 +40,20 @@ class EAGLET:
             print("Doing calculations for frequency of each label in the initial population...")
             print()
 
-        label_count = y.shape[1] #q
+        self.label_count = y.shape[1] #q
         label_frequencies = self.get_label_frequenciers(y) #f
         f_sum = self.get_label_frequency_sum(label_frequencies) #sigma f_l
 
         label_repeat_in_pop = [] #pop = population
         active_bits_count = self.labels_in_classifier*self.population_size #k*popSize
-        remaining_bit_count = active_bits_count - label_count*self.__rep_min__ #r
+        remaining_bit_count = active_bits_count - self.label_count*self.__rep_min__ #r
         
         #distribute bit count among labels
         # k_of_q = math.comb(label_count,self.labels_in_classifier)
         # accum_population = self.population_size*self.max_generations #popSize*G
         # total_ind_count = self.population_size if k_of_q >= accum_population else k_of_q #individuals count upper bound
         total_ind_count = self.population_size #individuals count upper bound
-        for i in range(label_count):
+        for i in range(self.label_count):
             distribute = self.__rep_min__ + round(label_frequencies[i]/f_sum*remaining_bit_count)# a_min + ||f_l/sigmaF*r||
             label_repeat_in_pop.append(max(total_ind_count, distribute))
         
@@ -63,7 +64,7 @@ class EAGLET:
             while sum(label_repeat_in_pop) < active_bits_count:
                 label_index = labels_sorted_by_f[i][0]
                 label_repeat_in_pop[label_index] += 1
-                i = (i+1)%label_count
+                i = (i+1)%self.label_count
 
         elif(sum(label_repeat_in_pop)>active_bits_count):
             labels_sorted_by_f = utils.sort_labels(label_frequencies, desc=True)#descending
@@ -71,14 +72,15 @@ class EAGLET:
             while sum(label_repeat_in_pop) > active_bits_count:
                 label_index = labels_sorted_by_f[i][0]
                 label_repeat_in_pop[label_index] -= 1
-                i = (i+1)%label_count
+                i = (i+1)%self.label_count
         
         if(self.details):
             print("Number of times that each label appears in the initial population:")
             print(label_repeat_in_pop)
 
         ## 1.2. create initial individuals and fix if needed
-
+        self.population = Population(self.population_size, self.labels_in_classifier, self.label_count, label_repeat_in_pop
+            , label_frequencies, self.details)
         ## 1.3. delete repeated individuals
         # 2. loop: ('max_generations' times)
         ## 2.1. calculate individual fitnesses
@@ -92,7 +94,6 @@ class EAGLET:
         ## 2.9. population_size - n individuals are selected randomly from population of previous generation
         # end loop
         # 3. fit each MLC in the ensemble
-        pass
 
     def predict(self, X):
         """Predict labels for X
