@@ -44,6 +44,50 @@ class EAGLET:
         #Store some values
         self.label_count = y.shape[1] #q
 
+        #Calculate appearance of each label in initial population
+        label_frequencies, label_repeat_in_pop = self.calculate_label_appearances(y)
+        
+        if(self.details):
+            print("Number of times that each label appears in the initial population:")
+            print(label_repeat_in_pop)
+
+        self.population = Population(self.population_size, self.labels_in_classifier, self.label_count
+        , label_repeat_in_pop, self.details)
+        # self.population.generate_ensemble(X, y, self.tournament_size, self.max_generations, self.crossoverP
+        #     ,self.mutationP, self.threshold, self.beta_number)
+        self.generate_ensemble(self.population)
+
+        ## 1.2. create initial individuals and fix if needed
+        self.population.distribute_labels(label_repeat_in_pop, label_frequencies)
+        
+        ## 1.3. delete repeated individuals
+        self.population.remove_duplicate_inds()
+
+        #print individuals
+        if self.details:
+            self.population.print_inds()
+
+        # 2. loop: ('max_generations' times)
+        ## 2.1. calculate individual fitnesses
+        ## 2.2. run a tournament to select two individuals
+        ## 2.3. crossover operation
+        ## 2.4. mutation operation
+        ## 2.5. add new childs to population of generation g
+        ## 2.6. delete repeated individuals
+        ## 2.7. select n individuals and generate ensemble of generation g
+        ## 2.8. n selected individuals are copied to population of generation g+1 (P_g+1)
+        ## 2.9. population_size - n individuals are selected randomly from population of previous generation
+        # end loop
+        # 3. fit each MLC in the ensemble
+
+    def calculate_label_appearances(self, y):
+        """Calculates appearance of each label in initial population
+
+        Parameters
+        ----------
+        y : `array_like`, :class:`numpy.matrix` or :mod:`scipy.sparse` matrix of `{0, 1}`, shape=(n_samples, n_labels)
+            binary indicator matrix with label assignments
+        """
         label_frequencies = self.get_label_frequenciers(y) #f
         f_sum = self.get_label_frequency_sum(label_frequencies) #sigma f_l
 
@@ -73,39 +117,7 @@ class EAGLET:
                 label_index = labels_sorted_by_f[i][0]
                 label_repeat_in_pop[label_index] -= 1
                 i = (i+1)%self.label_count
-        
-        if(self.details):
-            print("Number of times that each label appears in the initial population:")
-            print(label_repeat_in_pop)
-
-        self.population = Population(self.population_size, self.labels_in_classifier, self.label_count
-        , label_repeat_in_pop, self.details)
-        # self.population.generate_ensemble(X, y, self.tournament_size, self.max_generations, self.crossoverP
-        #     ,self.mutationP, self.threshold, self.beta_number)
-        self.generate_ensemble(self.population)
-
-        ## 1.2. create initial individuals and fix if needed
-        self.population.distribute_labels(label_repeat_in_pop, label_frequencies)
-        
-        ## 1.3. delete repeated individuals
-        self.population.remove_duplicate_inds()
-
-        #print individuals
-        if self.details:
-            self.population.print_inds()
-        
-        # 2. loop: ('max_generations' times)
-        ## 2.1. calculate individual fitnesses
-        ## 2.2. run a tournament to select two individuals
-        ## 2.3. crossover operation
-        ## 2.4. mutation operation
-        ## 2.5. add new childs to population of generation g
-        ## 2.6. delete repeated individuals
-        ## 2.7. select n individuals and generate ensemble of generation g
-        ## 2.8. n selected individuals are copied to population of generation g+1 (P_g+1)
-        ## 2.9. population_size - n individuals are selected randomly from population of previous generation
-        # end loop
-        # 3. fit each MLC in the ensemble
+        return label_frequencies,label_repeat_in_pop
 
     def predict(self, X):
         """Predict labels for X
