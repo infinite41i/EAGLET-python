@@ -1,6 +1,10 @@
 import numpy as np
 from random import randrange, sample
 from EAGLET.utils import sort_labels
+from sklearn.tree import DecisionTreeClassifier
+from skmultilearn.problem_transform import LabelPowerset
+from sklearn.metrics import f1_score
+from scipy.sparse.lil import lil_matrix
 
 class Population:
     def __init__(self, pop_size: int, labels_in_individual: int, label_count: int, labels_repeat: list
@@ -12,6 +16,7 @@ class Population:
 
         #initialize individuals
         self.individuals = np.zeros((pop_size,label_count), np.byte)
+        self.population_fitness_table = {}
         self.labels_sorted_by_f = sort_labels(label_frequencies, desc=True)#descending
         self.distribute_labels(label_count ,labels_repeat)
 
@@ -48,7 +53,7 @@ class Population:
                 self.individuals[l_active_ind][rand_suitable_bit] = 1
 
                 selected_inds.add(l_inactive_ind)
-
+    
     def is_ind_suitable(self, ind_index: int, label_index: int) -> bool:
         if(sum(self.individuals[ind_index]) >= self.labels_in_individual):
             return False
@@ -111,3 +116,45 @@ class Population:
             elif i == 1:
                 s += "1"
         return s
+
+    def get_ind_fitness(self, ind, X_train, y_train):
+        ind_str = self.ind_to_str(ind)
+        if ind_str in self.population_fitness_table:
+            return self.population_fitness_table[ind_str]
+        else:
+            fitness = self.calc_ind_fitness(ind, X_train, y_train)
+            self.population_fitness_table[ind_str] = fitness
+            return fitness
+
+    def calc_ind_fitness(self, ind, X_train, y_train):
+        # 1. build individual-specific y_train: y_train_ind
+        y_train_ind = self.get_ind_y(ind, y_train)
+        
+        # 2. make a classifier for individual
+        ind_clf = LabelPowerset(classifier=DecisionTreeClassifier())
+        
+        # 3. fit classifier with X_train, y_train_ind
+        ind_clf.fit(X_train, y_train_ind)
+
+        # 4. predict on full train data
+        y_predict = ind_clf.predict(X_train)
+
+        # 5. calculate F1-score with y_train_ind data and ind_predict and 'smaple' mode
+        score = f1_score(y_train_ind, y_predict, average='samples', zero_division=0)
+        
+        return score
+
+    def get_ind_y(self, ind: int, y_train) -> lil_matrix:
+        ind_str = self.ind_to_str(ind)
+        start = ind_str.find("1")
+        ind_y = lil_matrix(y_train.copy())
+        row_count = y_train.shape[0]
+        
+        for i in range(len(ind_str)):
+            if ind_str[i] == "0":
+                for row in range(row_count):
+                    ind_y[row, i] = 0
+        # print(y_train)
+        # print("**************")
+        # print(ind_y)
+        return ind_y
