@@ -146,7 +146,6 @@ class Population:
 
     def get_ind_y(self, ind: int, y_train) -> lil_matrix:
         ind_str = self.ind_to_str(ind)
-        start = ind_str.find("1")
         ind_y = lil_matrix(y_train.copy())
         row_count = y_train.shape[0]
         
@@ -154,7 +153,4 @@ class Population:
             if ind_str[i] == "0":
                 for row in range(row_count):
                     ind_y[row, i] = 0
-        # print(y_train)
-        # print("**************")
-        # print(ind_y)
         return ind_y
