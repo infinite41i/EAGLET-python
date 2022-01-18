@@ -35,8 +35,7 @@ class EAGLET:
         self
             fitted instance of self
         """
-        # 1. initialize individuals
-        ## 1.1. do calculations for frequency of each label in the initial population
+
         if(self.details):
             print("Doing calculations for frequency of each label in the initial population...")
             print()
@@ -44,18 +43,16 @@ class EAGLET:
         #Store some values
         self.label_count = y.shape[1] #q
 
-        #Calculate appearance of each label in initial population
+        # 1. Create initial population
+        self.population = Population(self.population_size, self.labels_in_classifier, self.label_count)
+
+        ## 1.1. Calculate appearance of each label in initial population
         label_frequencies, label_repeat_in_pop = self.calculate_label_appearances(y)
         
+        #print details
         if(self.details):
             print("Number of times that each label appears in the initial population:")
             print(label_repeat_in_pop)
-
-        self.population = Population(self.population_size, self.labels_in_classifier, self.label_count
-        , label_repeat_in_pop, self.details)
-        # self.population.generate_ensemble(X, y, self.tournament_size, self.max_generations, self.crossoverP
-        #     ,self.mutationP, self.threshold, self.beta_number)
-        self.generate_ensemble(self.population)
 
         ## 1.2. create initial individuals and fix if needed
         self.population.distribute_labels(label_repeat_in_pop, label_frequencies)

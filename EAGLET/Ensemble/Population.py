@@ -7,12 +7,10 @@ from sklearn.metrics import f1_score
 from scipy.sparse.lil import lil_matrix
 
 class Population:
-    def __init__(self, pop_size: int, labels_in_individual: int, label_count: int, labels_repeat: list
-        , details=False) -> None:
+    def __init__(self, pop_size: int, labels_in_individual: int, label_count: int) -> None:
         self.pop_size = pop_size
         self.label_count = label_count
         self.labels_in_individual = labels_in_individual
-        self.labels_repeat = labels_repeat
 
         #initialize individuals
         self.individuals = np.zeros((self.pop_size, self.label_count), np.byte)
