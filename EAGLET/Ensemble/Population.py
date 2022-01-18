@@ -1,6 +1,6 @@
 import numpy as np
 from random import randrange, sample
-from EAGLET.utils import sort_labels
+from EAGLET.utils import sort_labels, sort_dict
 from sklearn.tree import DecisionTreeClassifier
 from skmultilearn.problem_transform import LabelPowerset
 from sklearn.metrics import f1_score
@@ -8,52 +8,64 @@ from scipy.sparse.lil import lil_matrix
 
 class Population:
     def __init__(self, pop_size: int, labels_in_individual: int, label_count: int, labels_repeat: list
-        , label_frequencies: dict, details=False) -> None:
+        , details=False) -> None:
         self.pop_size = pop_size
         self.label_count = label_count
         self.labels_in_individual = labels_in_individual
         self.labels_repeat = labels_repeat
 
         #initialize individuals
-        self.individuals = np.zeros((pop_size,label_count), np.byte)
+        self.individuals = np.zeros((self.pop_size, self.label_count), np.byte)
         self.population_fitness_table = {}
-        self.labels_sorted_by_f = sort_labels(label_frequencies, desc=True)#descending
-        self.distribute_labels(label_count ,labels_repeat)
 
-        ## 1.3. delete repeated individuals
-        self.remove_duplicate_inds()
+        
 
-        #print individuals
-        if details:
-            print()
-            print("Initial Individuals:")
-            print(self.individuals)
+    def print_inds(self):
+        print()
+        print("Initial Individuals:")
+        print(self.individuals)
 
-    def distribute_labels(self, label_count: int, labels_repeat: list):
-        for label in range(label_count):
+    def distribute_labels(self, labels_repeat: list, label_frequencies: dict):
+        """creates initial individuals
+
+        Parameters
+        ----------
+        labels_repeat : number of times that each label appears in the initial population (a_l)
+        label_frequencies: frequency of each label in training data (f_l)
+        """
+        labels_sorted_by_f = sort_labels(label_frequencies, desc=True)#descending
+
+        for label in labels_sorted_by_f:
             selected_inds = set()
             inappropriate_inds = set()
-
-            while len(selected_inds) < labels_repeat[label] and len(inappropriate_inds)+len(selected_inds) < self.pop_size:
+            
+            # select a_l labels
+            while len(selected_inds) < labels_repeat[label[0]] and len(inappropriate_inds)+len(selected_inds) < self.pop_size:
                 rand_index = randrange(self.pop_size)
-                if self.is_ind_suitable(rand_index, label):
+                if self.is_ind_suitable(rand_index, label[0]):
                     selected_inds.add(rand_index)
-                    self.individuals[rand_index][label] = 1
+                    self.individuals[rand_index][label[0]] = 1
                 else:
                     inappropriate_inds.add(rand_index)
 
             #fix the individuals when a label cannot be shared in a_l individuals
-            while len(selected_inds) < labels_repeat[label]:
-                l_inactive_ind = self.get_label_inactive_ind(label)
-                l_active_ind = self.get_label_active_ind(label)
-                rand_suitable_bit = self.get_random_suitable_bit(l_inactive_ind, l_active_ind, label)
+            while len(selected_inds) < labels_repeat[label[0]]:
+                l_inactive_ind = self.get_label_inactive_ind(label[0])
+                l_active_ind = self.get_label_active_ind(label[0])
+                rand_suitable_bit = self.get_random_suitable_bit(l_inactive_ind, l_active_ind, label[0])
                 
                 self.individuals[l_inactive_ind][rand_suitable_bit] = 0
-                self.individuals[l_inactive_ind][label] = 1
+                self.individuals[l_inactive_ind][label[0]] = 1
                 self.individuals[l_active_ind][rand_suitable_bit] = 1
 
                 selected_inds.add(l_inactive_ind)
     
+    # def generate_ensemble(self, X_train, y_train, tournament_size
+    #     , max_generations, crossoverP, mutationP, threshold, beta_number):
+    #     # print(self.get_ind_fitness(1, X_train, y_train)) #for test purposes
+    #     # print(self.get_ind_fitness(1, X_train, y_train)) #for test purposes
+    #     expected_vote_of_label = self.
+
     def is_ind_suitable(self, ind_index: int, label_index: int) -> bool:
         if(sum(self.individuals[ind_index]) >= self.labels_in_individual):
             return False
@@ -154,3 +166,7 @@ class Population:
                 for row in range(row_count):
                     ind_y[row, i] = 0
         return ind_y
+
+    def tournament_selection(self):
+        sorted_parents = sort_dict(self.population_fitness_table, desc=True)
+        return 

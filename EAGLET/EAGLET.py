@@ -78,12 +78,22 @@ class EAGLET:
             print("Number of times that each label appears in the initial population:")
             print(label_repeat_in_pop)
 
-        self.population = Population(self.population_size, self.labels_in_classifier, self.label_count, label_repeat_in_pop
-            , label_frequencies, self.details)
-        #With the above commands, these works are done in sequence to generate the ensemble
-        ## 1.2. create initial individuals and fix if needed
-        ## 1.3. delete repeated individuals
+        self.population = Population(self.population_size, self.labels_in_classifier, self.label_count
+        , label_repeat_in_pop, self.details)
+        # self.population.generate_ensemble(X, y, self.tournament_size, self.max_generations, self.crossoverP
+        #     ,self.mutationP, self.threshold, self.beta_number)
+        self.generate_ensemble(self.population)
 
+        ## 1.2. create initial individuals and fix if needed
+        self.population.distribute_labels(label_repeat_in_pop, label_frequencies)
+        
+        ## 1.3. delete repeated individuals
+        self.population.remove_duplicate_inds()
+
+        #print individuals
+        if self.details:
+            self.population.print_inds()
+        
         # 2. loop: ('max_generations' times)
         ## 2.1. calculate individual fitnesses
         ## 2.2. run a tournament to select two individuals
@@ -113,6 +123,10 @@ class EAGLET:
         # 1. predict with each classifier using fit method
         # 2. vote
         pass
+
+    def generate_ensemble(self, population: Population):
+        expected_vote_of_label = self.n_classifiers
+
 
     def get_label_frequenciers(self, y):
         return freq(find(y)[1])
