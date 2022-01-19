@@ -15,6 +15,7 @@ class Population:
         #initialize individuals
         self.individuals = np.zeros((self.pop_size, self.label_count), np.byte)
         self.population_fitness_table = {}
+        self.ind_dict = {}
 
         
 
@@ -94,39 +95,44 @@ class Population:
         unique_inds = []
         duplicate_inds = []
         #iterates on population to find duplicates
-        for i in range(self.pop_size):
-            indstr = self.ind_to_str(i)
+        for ind in self.individuals:
+            indstr = self.ind_to_str(ind)
             if indstr in unique_inds:
-                duplicate_inds.append(i)
+                duplicate_inds.append(indstr)
             else:
                 unique_inds.append(indstr)
         
         #replace duplicates with random indiviuals
         while len(duplicate_inds) != 0:
-            duplicate_ind_index = duplicate_inds[0]
+            duplicate_ind = self.ind_dict[duplicate_inds[0]]
             #first, fill duplicate with zeroes
-            self.individuals[duplicate_ind_index].fill(0)
+            duplicate_ind.fill(0)
 
             #fill randomly with 'one's
             new_bits = sample(range(0,self.label_count), self.labels_in_individual)
             for label_index in new_bits:
-                self.individuals[duplicate_ind_index][label_index] = 1
+                duplicate_ind[label_index] = 1
             
             #now check if it's duplicate again
-            new_indstr = self.ind_to_str(duplicate_ind_index)
+            new_indstr = self.ind_to_str(duplicate_ind)
             if new_indstr not in unique_inds:
                 duplicate_inds.pop(0)
                 unique_inds.append(new_indstr)
             
-    def ind_to_str(self, ind_num: int) -> str:
+    def ind_to_str(self, ind) -> str:
         s = ""
-        for i in self.individuals[ind_num]:
+        for i in ind:
             if i == 0:
                 s += "0"
             elif i == 1:
                 s += "1"
+        
+        self.ind_dict[s] = ind
         return s
 
+    def get_ind_by_str(self, indstr: str):
+        return self.ind_dict[indstr]
+    
     def get_ind_fitness(self, ind, X_train, y_train):
         ind_str = self.ind_to_str(ind)
         if ind_str in self.population_fitness_table:
@@ -154,7 +160,7 @@ class Population:
         
         return score
 
-    def get_ind_y(self, ind: int, y_train) -> lil_matrix:
+    def get_ind_y(self, ind, y_train) -> lil_matrix:
         ind_str = self.ind_to_str(ind)
         ind_y = lil_matrix(y_train.copy())
         row_count = y_train.shape[0]
