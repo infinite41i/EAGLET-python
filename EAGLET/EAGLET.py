@@ -64,7 +64,8 @@ class EAGLET:
             self.population.print_inds()
 
         # 2. generate the ensemble
-        self.ensemble = Ensemble(self.population, self.n_classifiers, self.label_count, self.labels_in_classifier, details=self.details)
+        self.ensemble = Ensemble(self.population, self.n_classifiers, self.label_count, self.labels_in_classifier
+            , self.threshold, details=self.details)
         if self.details:
             print()
             print("Generating the ensemble")
@@ -127,7 +128,7 @@ class EAGLET:
         """
         # 1. predict with each classifier using fit method
         # 2. vote
-        pass
+        return self.ensemble.predict_ensemble(X)
 
     def get_label_frequenciers(self, y):
         return freq(find(y)[1])

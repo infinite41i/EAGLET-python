@@ -6,15 +6,17 @@ import numpy as np
 from random import choices
 from skmultilearn.problem_transform import LabelPowerset
 from sklearn.tree import DecisionTreeClassifier
+from scipy.sparse.lil import lil_matrix
 
 class Ensemble:
     classifiers = []
     def __init__(self, population: Population, classifier_count: int, label_count: int
-        , labels_in_classifier: int, details = False) -> None:
+        , labels_in_classifier: int, threshold , details = False) -> None:
         self.population = population
         self.classifier_count = classifier_count
         self.label_count = label_count
         self.labels_in_classifier = labels_in_classifier
+        self.threshold = threshold
         self.details = details
         self.e = np.zeros((self.classifier_count, self.label_count), np.byte)
 
@@ -146,7 +148,31 @@ class Ensemble:
             i += 1
     
     def predict_ensemble(self, X_prediction):
-        pass
+        final_prediction = lil_matrix((X_prediction.shape[0], self.label_count))
+        sample_count = X_prediction.shape[1]
+        #list of all predictions
+        predictions = []
+        for clf in self.classifiers:
+            predictions.append(clf.predict(X_prediction))
+        
+        #find number of classifiers used for a label
+        classifiers_for_l = {}
+        for l in range(self.label_count):
+            classifiers_for_l[l] = 0
+            for ind in self.e:
+                if ind[l] == 1:
+                    classifiers_for_l[l] += 1
+        
+        #voting
+        for l in range(self.label_count):
+            for s in range(sample_count):
+                prediction_sum = 0
+                for prediction in predictions:
+                    if prediction[s, l] == 1:
+                        prediction_sum += 1
+                if prediction_sum/classifiers_for_l[l] > self.threshold:
+                    final_prediction[s,l] = 1
+        return final_prediction
 
     def normalize_ev(self, ev):
         ev_sum = sum(ev)

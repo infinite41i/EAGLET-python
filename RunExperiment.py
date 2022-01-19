@@ -1,8 +1,10 @@
 import sys, os
+from time import time
 import EAGLET.config as config
 from EAGLET.EAGLET import EAGLET
 from skmultilearn.dataset import load_from_arff
 from arff import BadLayout
+import sklearn.metrics as metrics
 
 def main():
     # 1. load configuration file
@@ -41,15 +43,14 @@ def main():
     except KeyError as exc:
         print(repr(exc))
         details = False
-    if(details):
-        print("*******************************************")
-        print("Starting algorithm...")
-        print("*******************************************")
+    print("*******************************************")
+    print("Starting algorithm...")
+    print("*******************************************")
     # 2. load_dataset    
     ## load from arff
     try:
-        X_train_inital, y_train_initial, feature_names_initial, label_names_initial = load_from_arff(train_path, label_count=label_count, load_sparse=sparse, label_location=label_location, return_attribute_definitions=True)
-        X_test_initial, y_test_initial, _, _ = load_from_arff(test_path, label_count=label_count, load_sparse=sparse, label_location=label_location, return_attribute_definitions=True)
+        X_train, y_train, feature_names_initial, label_names_initial = load_from_arff(train_path, label_count=label_count, load_sparse=sparse, label_location=label_location, return_attribute_definitions=True)
+        X_test, y_test, _, _ = load_from_arff(test_path, label_count=label_count, load_sparse=sparse, label_location=label_location, return_attribute_definitions=True)
     except BadLayout as exc:
         print(repr(exc) + ": probably 'sparse' attribute in config is wrong")
         return
@@ -66,12 +67,33 @@ def main():
         , details=details)
 
     # 4. fit
-    clf.fit(X_train_inital, y_train_initial)
+    print()
+    print("Fitting data...")
+    start_time = time()
+    clf.fit(X_train, y_train)
+    print()
+    print("Finished fitting. | execution_time: {} s".format(time()-start_time))
 
     # 5. predict
-    clf.predict(X_test_initial)
+    print()
+    print("Predicting data...")
+    start_time = time()
+    y_predict = clf.predict(X_test)
+    print()
+    print("Finished predicting. | execution_time: {} s".format(time()-start_time))
+    # 6. Scoring
+    print()
+    print("Calculating scores:...")
+    f1 = metrics.f1_score(y_test, y_predict, average="samples")
+    hamming_loss = metrics.hamming_loss(y_test, y_predict)
 
-    # 6. output results and score
+    # 7. output results and score
+    print()
+    print("******************************")
+    print("\tF1 Score: {}".format(f1))
+    print("\tHamming Loss: {}".format(hamming_loss))
+    print("******************************")
+    print()
     print("Done!")
 
 if __name__ == "__main__":
