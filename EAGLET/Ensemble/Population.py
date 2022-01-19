@@ -227,7 +227,13 @@ class Population:
     def tournament_selection(self):
         sorted_parents = sort_dict_by_value(self.population_fitness_table, desc=True)
         keys = list(sorted_parents.keys())
-        return self.get_ind_by_str(keys[0]), self.get_ind_by_str(keys[1])
+
+        parents = []
+        for k in range(len(keys)):
+            if len(parents) == 2:
+                return self.get_ind_by_str(parents[0]), self.get_ind_by_str(parents[1])
+            if keys[k] in self.ind_dict:
+                parents.append(keys[k])
     
     def crossover(self, ind1, ind2):
         new_ind1 = np.copy(ind1)
