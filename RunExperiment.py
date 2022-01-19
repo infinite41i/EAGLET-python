@@ -23,7 +23,6 @@ def main():
         label_location = configs['dataset']['label_location']
 
         # algorithm properties
-        tournament_size = configs['algorithm']['tournament_size']
         population_size = configs['algorithm']['population_size']
         max_generations = configs['algorithm']['max_generations']
         crossoverP = configs['algorithm']['crossoverP']
@@ -56,9 +55,15 @@ def main():
         return
     
     # 3. initialize Classifier
-    clf = EAGLET(population_size=population_size, n_classifiers=n_classifiers, labels_in_classifier=labels_in_classifier
-        , tournament_size=tournament_size, max_generations=max_generations, crossoverP=crossoverP
-        , mutationP=mutationP, threshold=threshold, beta_number=beta_number, details=details)
+    clf = EAGLET(population_size=population_size
+        , n_classifiers=n_classifiers
+        , labels_in_classifier=labels_in_classifier
+        , max_generations=max_generations
+        , crossoverP=crossoverP
+        , mutationP=mutationP
+        , threshold=threshold
+        , beta_number=beta_number
+        , details=details)
 
     # 4. fit
     clf.fit(X_train_inital, y_train_initial)

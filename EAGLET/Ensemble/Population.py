@@ -1,16 +1,19 @@
+from time import time
 import numpy as np
 from random import randrange, sample
-from EAGLET.utils import sort_labels, sort_dict
+from EAGLET.utils import sort_labels, sort_dict_by_value, decision
 from sklearn.tree import DecisionTreeClassifier
 from skmultilearn.problem_transform import LabelPowerset
 from sklearn.metrics import f1_score
 from scipy.sparse.lil import lil_matrix
 
 class Population:
-    def __init__(self, pop_size: int, labels_in_individual: int, label_count: int) -> None:
+    def __init__(self, pop_size: int, labels_in_individual: int, label_count: int, details = False) -> None:
+        self.difinite_pop_size = pop_size
         self.pop_size = pop_size
         self.label_count = label_count
         self.labels_in_individual = labels_in_individual
+        self.details = details
 
         #initialize individuals
         self.individuals = np.zeros((self.pop_size, self.label_count), np.byte)
@@ -59,11 +62,44 @@ class Population:
 
                 selected_inds.add(l_inactive_ind)
     
-    # def generate_ensemble(self, X_train, y_train, tournament_size
-    #     , max_generations, crossoverP, mutationP, threshold, beta_number):
-    #     # print(self.get_ind_fitness(1, X_train, y_train)) #for test purposes
-    #     # print(self.get_ind_fitness(1, X_train, y_train)) #for test purposes
-    #     expected_vote_of_label = self.
+    def genetic_operations(self, X_train, y, crossoverP, mutationP):
+        ## 2.1. calculate individual fitnesses
+        if self.details:
+            start_time = time()
+            print("calculating individual fitnesses...", end="")
+        for ind in self.individuals:
+            self.get_ind_fitness(ind, X_train, y)
+        if self.details:
+            print("\rcalculating individual fitnesses | exec_time: {} s".format(time()-start_time))
+        
+        ## 2.2. run a tournament to select two individuals
+        if self.details:
+                print("running a tournament to select two individuals...")
+        selected_ind1, selected_ind2 = self.tournament_selection()
+        
+        ## 2.3. crossover operation
+        if self.details:
+                print("recombinating...")
+        if(decision(crossoverP)):
+            selected_ind1 , selected_ind2 = self.crossover(selected_ind1, selected_ind2)
+
+        ## 2.4. mutation operation
+        if self.details:
+                print("mutating...")
+        if(decision(mutationP)):
+            selected_ind1 = self.mutate(selected_ind1)
+            selected_ind2 = self.mutate(selected_ind2)
+        
+        ## 2.5. add new childs to population of generation g
+        if self.details:
+                print("Adding childs to population...")
+        self.add_ind(selected_ind1)
+        self.add_ind(selected_ind2)
+
+        ## 2.6. delete repeated individuals
+        if self.details:
+                print("Removing duplicate individuals...")
+        self.remove_duplicate_inds()
 
     def is_ind_suitable(self, ind_index: int, label_index: int) -> bool:
         if(sum(self.individuals[ind_index]) >= self.labels_in_individual):
@@ -131,9 +167,19 @@ class Population:
         return s
 
     def get_ind_by_str(self, indstr: str):
+        if indstr not in self.ind_dict:
+            for ind in self.individuals:
+                self.ind_to_str(ind)
         return self.ind_dict[indstr]
     
-    def get_ind_fitness(self, ind, X_train, y_train):
+    def get_ind_index(self, ind):
+        ind_str = self.ind_to_str(ind)
+        for i in range(len(self.individuals)):
+            if self.ind_to_str(self.individuals[i]) == ind_str:
+                return i
+        raise IndexError
+    
+    def get_ind_fitness(self, ind, X_train, y_train) -> float:
         ind_str = self.ind_to_str(ind)
         if ind_str in self.population_fitness_table:
             return self.population_fitness_table[ind_str]
@@ -142,7 +188,14 @@ class Population:
             self.population_fitness_table[ind_str] = fitness
             return fitness
 
-    def calc_ind_fitness(self, ind, X_train, y_train):
+    def get_current_inds_fitness(self, X_train, y) -> dict:
+        current_fit_dict = {}
+        for ind in self.individuals:
+            indstr = self.ind_to_str(ind)
+            current_fit_dict[indstr] = self.get_ind_fitness(ind, X_train, y)
+        return current_fit_dict
+
+    def calc_ind_fitness(self, ind, X_train, y_train) -> float:
         # 1. build individual-specific y_train: y_train_ind
         y_train_ind = self.get_ind_y(ind, y_train)
         
@@ -172,5 +225,32 @@ class Population:
         return ind_y
 
     def tournament_selection(self):
-        sorted_parents = sort_dict(self.population_fitness_table, desc=True)
-        return 
+        sorted_parents = sort_dict_by_value(self.population_fitness_table, desc=True)
+        keys = list(sorted_parents.keys())
+        return self.get_ind_by_str(keys[0]), self.get_ind_by_str(keys[1])
+    
+    def crossover(self, ind1, ind2):
+        new_ind1 = np.copy(ind1)
+        new_ind2 = np.copy(ind2)
+        ###################
+        return new_ind1, new_ind2
+
+    def mutate(self, ind):
+        new_ind = np.copy(ind)
+        rand_indices = sample(range(self.label_count), 2)
+        index1 = rand_indices[0]
+        index2 = rand_indices[1]
+        new_ind[index1], new_ind[index2] = ind[index2], ind[index1]
+        return new_ind
+    
+    def add_ind(self, ind):
+        self.individuals = np.append(self.individuals, [ind], axis=0)
+        self.pop_size += 1
+    
+    def remove_ind(self, ind):
+        indstr = self.ind_to_str(ind)
+        indnum = self.get_ind_index(ind)
+        self.individuals[indnum] = self.individuals[self.pop_size-1]
+        self.individuals = np.delete(self.individuals, self.pop_size-1, axis=0)
+        self.pop_size -= 1
+        self.ind_dict.pop(indstr)

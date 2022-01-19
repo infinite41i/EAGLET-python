@@ -3,16 +3,15 @@ from collections import OrderedDict
 import math
 from scipy.sparse import find
 from EAGLET.Ensemble.Population import Population
+from EAGLET.Ensemble.Ensemble import Ensemble
 import EAGLET.utils as utils
 class EAGLET:
     __rep_min__ = 1
-    def __init__(self, population_size, n_classifiers, labels_in_classifier = 3, tournament_size = 2
-        , max_generations = 50, crossoverP = 0.7, mutationP = 0.2
-        , threshold = 0.5, beta_number = 0.75, details=False) -> None:
+    def __init__(self, population_size, n_classifiers, labels_in_classifier = 3, max_generations = 50
+        , crossoverP = 0.7, mutationP = 0.2, threshold = 0.5, beta_number = 0.75, details=False) -> None:
         self.population_size = population_size
         self.n_classifiers = n_classifiers
         self.labels_in_classifier = labels_in_classifier
-        self.tournament_size = tournament_size
         self.max_generations = max_generations
         self.crossoverP = crossoverP
         self.mutationP = mutationP
@@ -44,7 +43,7 @@ class EAGLET:
         self.label_count = y.shape[1] #q
 
         # 1. Create initial population
-        self.population = Population(self.population_size, self.labels_in_classifier, self.label_count)
+        self.population = Population(self.population_size, self.labels_in_classifier, self.label_count, details=self.details)
 
         ## 1.1. Calculate appearance of each label in initial population
         label_frequencies, label_repeat_in_pop = self.calculate_label_appearances(y)
@@ -64,18 +63,15 @@ class EAGLET:
         if self.details:
             self.population.print_inds()
 
-        # 2. loop: ('max_generations' times)
-        ## 2.1. calculate individual fitnesses
-        ## 2.2. run a tournament to select two individuals
-        ## 2.3. crossover operation
-        ## 2.4. mutation operation
-        ## 2.5. add new childs to population of generation g
-        ## 2.6. delete repeated individuals
-        ## 2.7. select n individuals and generate ensemble of generation g
-        ## 2.8. n selected individuals are copied to population of generation g+1 (P_g+1)
-        ## 2.9. population_size - n individuals are selected randomly from population of previous generation
-        # end loop
+        # 2. generate the ensemble
+        self.ensemble = Ensemble(self.population, self.n_classifiers, self.label_count, self.labels_in_classifier, details=self.details)
+        if self.details:
+            print()
+            print("Generating the ensemble")
+        self.ensemble.generate_ensemble(self.max_generations, X, y, self.crossoverP, self.mutationP, self.beta_number)
+        
         # 3. fit each MLC in the ensemble
+        self.ensemble.fit_ensemble(X, y)
 
     def calculate_label_appearances(self, y):
         """Calculates appearance of each label in initial population
@@ -132,10 +128,6 @@ class EAGLET:
         # 1. predict with each classifier using fit method
         # 2. vote
         pass
-
-    def generate_ensemble(self, population: Population):
-        expected_vote_of_label = self.n_classifiers
-
 
     def get_label_frequenciers(self, y):
         return freq(find(y)[1])
