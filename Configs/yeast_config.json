@@ -6,8 +6,7 @@
     },
     "algorithm":
     {
-        "tournament_size": 2,
-        "population_size": "default",
+        "population_size": 94,
         "max_generations": 50,
         "crossoverP": 0.7,
         "mutationP": 0.2,
@@ -19,9 +18,9 @@
 
     "dataset":
     {
-        "train_dataset": "emotions-train",
-        "test_dataset": "emotions-test",
-        "label_count": 6,
+        "train_dataset": "yeast-train",
+        "test_dataset": "yeast-test",
+        "label_count": 14,
         "sparse": "False",
         "label_location": "end"
     }
