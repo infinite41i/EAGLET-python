@@ -139,3 +139,5 @@ Configs/delicious_config.json
 Datasets/data.arff
 Datasets/delicious-test.arff
 Datasets/delicious-train.arff
+Outputs
+/*.arff

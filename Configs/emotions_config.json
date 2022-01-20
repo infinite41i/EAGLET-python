@@ -22,6 +22,7 @@
         "test_dataset": "emotions-test",
         "label_count": 6,
         "sparse": "False",
-        "label_location": "end"
+        "label_location": "end",
+        "output_file": "emotions-predict"
     }
 }

@@ -2,9 +2,10 @@ import sys, os
 from time import time
 import EAGLET.config as config
 from EAGLET.EAGLET import EAGLET
-from skmultilearn.dataset import load_from_arff
+from skmultilearn.dataset import load_from_arff, save_to_arff
 from arff import BadLayout
 import sklearn.metrics as metrics
+from datetime import datetime
 
 def main():
     # 1. load configuration file
@@ -23,6 +24,7 @@ def main():
         label_count = configs['dataset']['label_count']
         sparse = True if configs['dataset']['sparse']=="True" else False
         label_location = configs['dataset']['label_location']
+        output_file = configs['dataset']['output_file']
 
         # algorithm properties
         population_size = configs['algorithm']['population_size']
@@ -80,6 +82,8 @@ def main():
     print("Predicting data...")
     start_time = time()
     y_predict = clf.predict(X_test)
+    #save file
+    save_to_arff(X_test, y_predict, filename="{}-{}.arff".format(output_file, datetime.now().strftime('%Y-%m-%d-%H:%M:%S')))
     print()
     print("Finished predicting. | execution_time: {:5.3f} s".format(time()-start_time))
     # 6. Scoring
