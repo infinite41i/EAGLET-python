@@ -29,6 +29,8 @@ Then install requirements:
 pip install -r "requirements.txt"
 ```
 
+__Note:__ use `--default-timeout=1000` flag if you face a `http timeout` error.
+
 Now you can run `RunExperiment.py` with config file path as an argument. For example:
 
 __Unix:__
