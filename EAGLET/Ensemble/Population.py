@@ -70,35 +70,25 @@ class Population:
         for ind in self.individuals:
             self.get_ind_fitness(ind, X_train, y)
         if self.details:
-            print("\rcalculating individual fitnesses | exec_time: {} s".format(time()-start_time))
+            print("\rcalculating individual fitnesses | exec_time: {:5.3f} s".format(time()-start_time))
         
         ## 2.2. run a tournament to select two individuals
-        if self.details:
-                print("running a tournament to select two individuals...")
         selected_ind1, selected_ind2 = self.tournament_selection()
         
         ## 2.3. crossover operation
-        if self.details:
-                print("recombinating...")
         if(decision(crossoverP)):
             selected_ind1 , selected_ind2 = self.crossover(selected_ind1, selected_ind2)
 
         ## 2.4. mutation operation
-        if self.details:
-                print("mutating...")
         if(decision(mutationP)):
             selected_ind1 = self.mutate(selected_ind1)
             selected_ind2 = self.mutate(selected_ind2)
         
         ## 2.5. add new childs to population of generation g
-        if self.details:
-                print("Adding childs to population...")
         self.add_ind(selected_ind1)
         self.add_ind(selected_ind2)
 
         ## 2.6. delete repeated individuals
-        if self.details:
-                print("Removing duplicate individuals...")
         self.remove_duplicate_inds()
 
     def is_ind_suitable(self, ind_index: int, label_index: int) -> bool:

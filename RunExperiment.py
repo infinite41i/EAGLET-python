@@ -46,6 +46,7 @@ def main():
     print("*******************************************")
     print("Starting algorithm...")
     print("*******************************************")
+    total_start_time = time()
     # 2. load_dataset    
     ## load from arff
     try:
@@ -72,7 +73,7 @@ def main():
     start_time = time()
     clf.fit(X_train, y_train)
     print()
-    print("Finished fitting. | execution_time: {} s".format(time()-start_time))
+    print("Finished fitting. | total_ensemble_fit_time: {:5.3f} s".format(time()-start_time))
 
     # 5. predict
     print()
@@ -80,7 +81,7 @@ def main():
     start_time = time()
     y_predict = clf.predict(X_test)
     print()
-    print("Finished predicting. | execution_time: {} s".format(time()-start_time))
+    print("Finished predicting. | execution_time: {:5.3f} s".format(time()-start_time))
     # 6. Scoring
     print()
     print("Calculating scores:...")
@@ -96,7 +97,7 @@ def main():
     print("\tMaR: {}".format(MaR))
     print("******************************")
     print()
-    print("Done!")
+    print("Done! | Total execution time: {:5.3f} s".format(time()-total_start_time))
 
 if __name__ == "__main__":
     main()

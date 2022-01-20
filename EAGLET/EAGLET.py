@@ -1,6 +1,7 @@
 from collections import Counter as freq
 from collections import OrderedDict
 import math
+from time import time
 from scipy.sparse import find
 from EAGLET.Ensemble.Population import Population
 from EAGLET.Ensemble.Ensemble import Ensemble
@@ -69,9 +70,16 @@ class EAGLET:
         if self.details:
             print()
             print("Generating the ensemble")
+            start_time = time()
         self.ensemble.generate_ensemble(self.max_generations, X, y, self.crossoverP, self.mutationP, self.beta_number)
+        if self.details:
+            print()
+            print("Ensemble generated. | execution_time: {:5.3f} s".format(time()-start_time))
         
         # 3. fit each MLC in the ensemble
+        if self.details:
+            print()
+            print("Fitting each MLC in the ensemble")
         self.ensemble.fit_ensemble(X, y)
 
     def calculate_label_appearances(self, y):

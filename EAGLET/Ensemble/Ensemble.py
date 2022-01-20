@@ -23,11 +23,11 @@ class Ensemble:
     def generate_ensemble(self, max_generations: int, X, y, crossoverP, mutationP, beta_number):
         # 2. ensemble generatin
         #loop: ('max_generations' times)
-        if self.details:
-                print()
         for g in range(max_generations):
             if self.details:
-                print("Doing Genetic operations for generation {}...".format(g))
+                print()
+                print("Doing operations for generation {}...".format(g))
+                print("--------------------------------------------------------")
             self.population.genetic_operations(X, y, crossoverP, mutationP)
             ## |--> 2.1. calculate individual fitnesses
             ## |--> 2.2. run a tournament to select two individuals
@@ -40,8 +40,6 @@ class Ensemble:
             n = self.classifier_count
             n_prime = 0
 
-            if self.details:
-                print("selecting {} individuals and generating ensemble of generation {}...".format(n,g))
             #expected number of votes or appearances of each label
             expected_label_votes = floor(self.classifier_count * self.labels_in_classifier / self.label_count)
             
@@ -55,13 +53,13 @@ class Ensemble:
             #argmax of fitness ind
             if self.details:
                 start_time = time()
-                print("Finding argmax of fitness ind...", end="")
+                print("\rFinding argmax of fitness among individuals...", end="")
             current_ind_fitnesses = self.population.get_current_inds_fitness(X, y)
             sorted_fitnesses = list(sort_dict_by_value(current_ind_fitnesses, desc=True).keys())
             fittest_ind_str = sorted_fitnesses[0]
             fittest_ind = self.population.get_ind_by_str(fittest_ind_str)
             if self.details:
-                print("\rFinding argmax of fitness ind... | exec_time: {} s".format(time()-start_time))
+                print("\rFinding argmax of fitness among individuals | exec_time: {:5.3f} s".format(time()-start_time))
             
             #add fittest individual to ensemble of current generation
             if self.details:
@@ -70,17 +68,17 @@ class Ensemble:
             self.e[n_prime] = fittest_ind
             n_prime += 1
             if self.details:
-                print("\rAdding fittest individual to ensemble of current generation | exec_time: {} s".format(time()-start_time))
+                print("\rAdding fittest individual to ensemble of current generation | exec_time: {:5.3f} s".format(time()-start_time))
 
             self.population.remove_ind(fittest_ind)
 
             #update ev
             self.updateEV(ev, fittest_ind)
 
+            if self.details:
+                print("Getting argmax of linear combination of beta and fitness...", end="")
+                start_time = time()
             while n_prime < n:
-                if self.details:
-                    start_time = time()
-                    print("Getting argmax of linear combination of beta and fitness for n_prime = {}...".format(n_prime), end="")
                 hd = [] #Hamming Distances
                 for ind in self.population.individuals:
                     normalized_ev = self.normalize_ev(ev)
@@ -108,18 +106,13 @@ class Ensemble:
                     self.e[n_prime] = ind
                     n_prime += 1
                     self.population.remove_ind(ind)
-                if self.details:
-                    print("\rGetting argmax of linear combination of beta and fitness for n_prime = {} | exec_time: {} s".format(n_prime, time()-start_time))
+            if self.details:
+                print("\rGetting argmax of linear combination of beta and fitness | exec_time: {:5.3f} s".format(time()-start_time))
                 
             ## 2.8. population_size - n individuals are selected randomly from population of previous generation to stay in population            
             current_ind_fitnesses = self.population.get_current_inds_fitness(X, y)
             
             #calculate weights for random selection
-            # if self.details:
-            #     start_time = time()
-            #     print("Adding fittest individual to ensemble of current generation...", end="")
-            # if self.details:
-            #     print("\rAdding fittest individual to ensemble of current generation... | exec_time: {}".format(time()-start_time), end="")
             weights = []
             inds = self.population.individuals
             ind_count = len(inds)
@@ -137,7 +130,10 @@ class Ensemble:
             ## 2.9. n selected individuals are copied to population of generation g+1 (P_g+1)
             for ind in self.e:
                 self.population.add_ind(ind)
+            if self.details:
+                    print("--------------------------------------------------------")
         #end loop
+
 
     def fit_ensemble(self, X, y):
         i = 0
