@@ -1,6 +1,6 @@
 from time import time
 import numpy as np
-from random import randrange, sample
+from random import randrange, sample, shuffle
 from EAGLET.utils import sort_labels, sort_dict_by_value, decision
 from sklearn.tree import DecisionTreeClassifier
 from skmultilearn.problem_transform import LabelPowerset
@@ -236,9 +236,39 @@ class Population:
                 parents.append(keys[k])
     
     def crossover(self, ind1, ind2):
+        #find bits where two individuals differ
+        ds1 = []
+        ds2 = []
+        for i in range(self.label_count):
+            if ind1[i] == 1 and ind2[i] == 0:
+                ds1.append(i)
+            elif ind1[i] == 0 and ind2[i] == 1:
+                ds2.append(i)
+        
+        #shuffle ds1 and ds2
+        shuffle(ds1)
+        shuffle(ds2)
+
+        #divide by midpoint
+        ds1mid = len(ds1)//2
+        ds2mid = len(ds2)//2
+        #crossover
+        ds1_prime = ds1[:ds1mid] + ds2[ds2mid:]
+        ds2_prime = ds1[ds1mid:] + ds2[:ds2mid]
+
         new_ind1 = np.copy(ind1)
         new_ind2 = np.copy(ind2)
-        ###################
+
+        for i in range(self.label_count):
+            if i in ds1:
+                new_ind1[i] = 0
+            elif i in ds2:
+                new_ind2[i] = 0
+        for i in range(self.label_count):
+            if i in ds1_prime:
+                new_ind1[i] = 1
+            elif i in ds2_prime:
+                new_ind2[i] = 1
         return new_ind1, new_ind2
 
     def mutate(self, ind):
