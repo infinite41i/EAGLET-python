@@ -84,14 +84,16 @@ def main():
     # 6. Scoring
     print()
     print("Calculating scores:...")
-    f1 = metrics.f1_score(y_test, y_predict, average="samples")
     hamming_loss = metrics.hamming_loss(y_test, y_predict)
+    MaP = metrics.precision_score(y_test, y_predict, average='macro')
+    MaR = metrics.recall_score(y_test, y_predict, average='macro')
 
     # 7. output results and score
     print()
     print("******************************")
-    print("\tF1 Score: {}".format(f1))
     print("\tHamming Loss: {}".format(hamming_loss))
+    print("\tMaP: {}".format(MaP))
+    print("\tMaR: {}".format(MaR))
     print("******************************")
     print()
     print("Done!")
