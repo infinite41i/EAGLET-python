@@ -22,6 +22,7 @@
         "test_dataset": "yeast-test",
         "label_count": 14,
         "sparse": "False",
-        "label_location": "end"
+        "label_location": "end",
+        "output_file": "yeast-predict"
     }
 }
