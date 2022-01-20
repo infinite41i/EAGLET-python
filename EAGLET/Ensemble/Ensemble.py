@@ -7,6 +7,7 @@ from random import choices
 from skmultilearn.problem_transform import LabelPowerset
 from sklearn.tree import DecisionTreeClassifier
 from scipy.sparse.lil import lil_matrix
+from sklearn.metrics import f1_score
 
 class Ensemble:
     classifiers = []
@@ -21,9 +22,12 @@ class Ensemble:
         self.e = np.zeros((self.classifier_count, self.label_count), np.byte)
 
     def generate_ensemble(self, max_generations: int, X, y, crossoverP, mutationP, beta_number):
+        first_ensemble = True
+        max_score = 0
         # 2. ensemble generatin
         #loop: ('max_generations' times)
         for g in range(max_generations):
+            candidate_e = np.zeros((self.classifier_count, self.label_count), np.byte)
             if self.details:
                 print()
                 print("Doing operations for generation {}...".format(g))
@@ -65,7 +69,7 @@ class Ensemble:
             if self.details:
                 start_time = time()
                 print("Adding fittest individual to ensemble of current generation...", end="")
-            self.e[n_prime] = fittest_ind
+            candidate_e[n_prime] = fittest_ind
             n_prime += 1
             if self.details:
                 print("\rAdding fittest individual to ensemble of current generation | exec_time: {:5.3f} s".format(time()-start_time))
@@ -82,7 +86,7 @@ class Ensemble:
                 hd = [] #Hamming Distances
                 for ind in self.population.individuals:
                     normalized_ev = self.normalize_ev(ev)
-                    hd_ind = self.hamming_distance(ind, self.e, normalized_ev, n_prime, self.label_count)
+                    hd_ind = self.hamming_distance(ind, candidate_e, normalized_ev, n_prime, self.label_count)
                     hd.append(hd_ind)
             
                 #calculate 'beta*hd + (1-beta)*fitness' for each ind and find maximum
@@ -103,7 +107,7 @@ class Ensemble:
                     raise Exception
                 else:
                     #add best individual to ensemble and remove from population
-                    self.e[n_prime] = ind
+                    candidate_e[n_prime] = ind
                     n_prime += 1
                     self.population.remove_ind(ind)
             if self.details:
@@ -128,8 +132,17 @@ class Ensemble:
                     self.population.remove_ind(inds[i])
             
             ## 2.9. n selected individuals are copied to population of generation g+1 (P_g+1)
-            for ind in self.e:
+            for ind in candidate_e:
                 self.population.add_ind(ind)
+            
+            #now if candidate ensemble is better than previous ensemble, new ensemble is stored
+            if first_ensemble:
+                self.e = np.copy(candidate_e)
+            else:
+                ens_predict = self.predict_ensemble(X, candidate_e)
+                score = f1_score(y, ens_predict, average='samples', zero_division=0)
+                if (score > max_score):
+                    self.e = np.copy(candidate_e)
             if self.details:
                     print("--------------------------------------------------------")
         #end loop
@@ -143,7 +156,12 @@ class Ensemble:
             self.classifiers[i].fit(X, y_ind)
             i += 1
     
-    def predict_ensemble(self, X_prediction):
+    def predict_ensemble(self, X_prediction, ens = None):
+        try:
+            if ens is None:
+                ens = self.e
+        except:
+            pass
         final_prediction = lil_matrix((X_prediction.shape[0], self.label_count))
         sample_count = X_prediction.shape[1]
         #list of all predictions
@@ -155,7 +173,7 @@ class Ensemble:
         classifiers_for_l = {}
         for l in range(self.label_count):
             classifiers_for_l[l] = 0
-            for ind in self.e:
+            for ind in ens:
                 if ind[l] == 1:
                     classifiers_for_l[l] += 1
         
