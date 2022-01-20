@@ -83,7 +83,7 @@ def main():
     start_time = time()
     y_predict = clf.predict(X_test)
     #save file
-    save_to_arff(X_test, y_predict, filename="{}-{}.arff".format(output_file, datetime.now().strftime('%Y-%m-%d-%H:%M:%S')))
+    save_to_arff(X_test, y_predict, filename="{}-{}.arff".format(output_file, datetime.now().strftime('%Y-%m-%d-%H_%M_%S')))
     print()
     print("Finished predicting. | execution_time: {:5.3f} s".format(time()-start_time))
     # 6. Scoring
