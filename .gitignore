@@ -130,3 +130,12 @@ dmypy.json
 
 # IDE
 .vscode
+
+#tests
+Tests
+RunTest.py
+Configs/data_config.json
+Configs/delicious_config.json
+Datasets/data.arff
+Datasets/delicious-test.arff
+Datasets/delicious-train.arff
