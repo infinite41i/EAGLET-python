@@ -90,7 +90,7 @@ def main():
     print()
     print("Calculating scores:...")
     hamming_loss = metrics.hamming_loss(y_test, y_predict)
-    MaP = metrics.precision_score(y_test, y_predict, average='macro')
+    MaP = metrics.precision_score(y_test, y_predict, average='macro', zero_division=0)
     MaR = metrics.recall_score(y_test, y_predict, average='macro')
 
     # 7. output results and score
