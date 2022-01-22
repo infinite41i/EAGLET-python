@@ -20,7 +20,7 @@ def main():
     try:
         # dataset properties:
         train_path = "./Datasets/" + configs['dataset']['train_dataset'] + ".arff"
-        test_path = "./Datasets/" + configs['dataset']['train_dataset'] + ".arff"
+        test_path = "./Datasets/" + configs['dataset']['test_dataset'] + ".arff"
         label_count = configs['dataset']['label_count']
         sparse = True if configs['dataset']['sparse']=="True" else False
         label_location = configs['dataset']['label_location']
