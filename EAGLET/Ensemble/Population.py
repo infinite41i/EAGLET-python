@@ -41,7 +41,7 @@ class Population:
             selected_inds = set()
             inappropriate_inds = set()
             
-            # select a_l labels
+            # select a_l individuals
             while len(selected_inds) < labels_repeat[label[0]] and len(inappropriate_inds)+len(selected_inds) < self.pop_size:
                 rand_index = randrange(self.pop_size)
                 if self.is_ind_suitable(rand_index, label[0]):

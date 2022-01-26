@@ -163,7 +163,7 @@ class Ensemble:
         except:
             pass
         final_prediction = lil_matrix((X_prediction.shape[0], self.label_count))
-        sample_count = X_prediction.shape[1]
+        sample_count = X_prediction.shape[0]
         #list of all predictions
         predictions = []
         for clf in self.classifiers:
